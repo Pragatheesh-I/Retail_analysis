@@ -1,0 +1,105 @@
+Retail store
+
+1. Loaded all the dataset(CSV) as comma separated in Power Bi and opened transform(Power query)
+
+2. Removed all the dimension columns in the fat table, which are already present in the dim tables
+
+3. The Action: Add a Conditional Column named Stock_Status:
+
+Logic: If [Inventory_Level] <= [Restock_Threshold] then "At Risk" else "Healthy"
+
+4. The Action: Add another Custom Column for Reorder_Urgency:
+
+Formula: [Restock_Threshold] - [Inventory_Level] (Positive numbers tell us exactly how many units we are short).
+
+5. The Action: Use "Replace Values". Replace None or null with "Year-Round"
+
+6. The Action: Create a Custom Column for Gross_Revenue:
+
+Formula: [Unit_Price] * [Quantity_Sold].
+
+7. Finished the Calendar table works with taking min and max of date sale
+
+8. Total Sales:
+Total Sales = SUM(retail_transactions[Total_Sales_Amount])
+
+Total Quantity Sold:
+Total Units = SUM(retail_transactions[Quantity_Sold])
+
+Profit Margin %:
+Avg Profit Margin = AVERAGE(retail_transactions[Profit_Margin])
+
+Discount Impact:
+Total Discount Given = SUM(retail_transactions[Gross_Revenue]) - [Total Sales]
+
+9. Phase 1: Advanced DAX Measures
+Before we build the visuals, create these four measures to complete your analytical toolkit:
+
+1. Inventory Turnover Rate (Must-Have)
+Measures how many times your inventory is sold and replaced over a period.
+
+Code snippet
+Inventory Turnover = 
+DIVIDE(
+    [Total Units], 
+    AVERAGE(retail_transactions[Inventory_Level]), 
+    0
+)
+2. Sales per Square Foot (Must-Have - Correlation)
+Identifies which store formats are actually efficient, regardless of their size.
+
+Code snippet
+Sales per Sq Ft = 
+DIVIDE(
+    [Total Sales], 
+    SUM(retail_stores[Store_Size]), 
+    0
+)
+3. Stockout Risk Count (Must-Have)
+Counts how many instances a product was at or below the threshold.
+
+Code snippet
+Stockout Instances = 
+CALCULATE(
+    COUNTROWS(retail_transactions), 
+    retail_transactions[Stock_Status] = "At Risk"
+)
+4. Loyalty Sales Contribution % (Good-to-Have)
+
+Code snippet
+Loyalty Sales % = 
+DIVIDE(
+    CALCULATE([Total Sales], retail_transactions[Customer_Loyalty_Status] = "Yes"),
+    [Total Sales]
+)
+
+Pages Creation in power bi
+
+Page 1: Executive Sales Overview
+KPI Cards: Total Sales, Avg Profit Margin, Total Discount Given.
+
+Trend Analysis (Line Chart): Date on X-axis, Total Sales on Y-axis.
+
+Action: Go to the Analytics Pane (magnifying glass icon), select Forecast, and turn it ON. Set it to "3 Months". (Satisfies Sales Forecasting requirement).
+
+Regional Performance (Map or Bar Chart): Region (from retail_stores) and Total Sales.
+
+Page 2: Inventory Optimization (The "Deep Dive")
+KPI Cards: Inventory Turnover, Stockout Instances.
+
+Stockout Heatmap (Matrix): Product_Category on Rows, Store_ID on Columns, Stockout Instances as Values. Use Conditional Formatting (Red) for high numbers.
+
+Turnover Comparison (Clustered Bar Chart): Product_Category on Axis, Inventory Turnover on Values.
+
+Lead Time vs. Urgency (Line chart): Lead_Time on X-axis, Reorder_Urgency on Y-axis.
+
+Page 3: Marketing & Pattern Insights
+Seasonal Analysis (Area Chart): Month (from DateTable) on X-axis, Total Sales on Y-axis, Seasonal_Flag in the Legend.
+
+Payment Method (Donut Chart): Payment_Method and Total Sales.
+
+Page 4: Added 2 waterfall chart Total sales by year and product_categary and total sales by year and region wise
+
+Added Background image by using PPT
+
+Added slicers in all pages along with the background images. #2867A4 - Hex colour used as the main theme.
